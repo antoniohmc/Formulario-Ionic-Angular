@@ -3,7 +3,10 @@ import { AlertController, IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from
   '@angular/forms';
-import { DatabaseService } from '../service/page.service';
+import { PessoaService } from '../service/pessoa.service';
+import { Pessoa } from '../model/pessoa';
+import { ActivatedRoute } from '@angular/router';
+
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
@@ -16,24 +19,36 @@ export class Tab1Page {
     nome: ['', Validators.required],
     telefone: [''],
     email: ['', Validators.email],
-    hobie: ['']
+    hobie: [''],
   })
-  constructor(
-    private fb: FormBuilder,
-    private databaseService: DatabaseService,
-    private alertController: AlertController // from @ionic/angular
+  emailToEdit: null | string | undefined;
+
+  constructor(private fb: FormBuilder,
+    private pessoaService: PessoaService,
+    private activedRouter: ActivatedRoute
   ) { }
   async salvar() {
-    if (this.formGroup.valid) {
-      this.databaseService.set("pessoa", JSON.stringify(this.formGroup.value))
-      const alert = await this.alertController.create({
-        header: 'Item salvo',
-        message: 'Item salvo com sucesso',
-        buttons: ['OK'],
-      })
-      await alert.present()
+    if (this.emailToEdit) {
+      this.pessoaService.editar(this.formGroup.value, this.emailToEdit)
     } else {
-      alert('Formulário inválido')
+      this.pessoaService.criar(this.formGroup.value)
     }
   }
+
+  ionViewDidEnter(): void {
+    this.emailToEdit = null
+    const email = this.activedRouter.snapshot.paramMap.get("email");
+    if (email) {
+      console.log(email)
+      this.pessoaService.get(email).then(pessoa => {
+        if (pessoa) {
+          this.formGroup.patchValue(pessoa)
+          this.emailToEdit = email
+        }
+      })
+    }
+  }
+
+
+
 }    
