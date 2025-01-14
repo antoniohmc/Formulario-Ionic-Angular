@@ -1,10 +1,8 @@
 import { Component } from '@angular/core';
-import { AlertController, IonicModule } from '@ionic/angular';
+import { ToastController, IonicModule } from '@ionic/angular';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from
-  '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PessoaService } from '../service/pessoa.service';
-import { Pessoa } from '../model/pessoa';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -25,15 +23,27 @@ export class Tab1Page {
 
   constructor(private fb: FormBuilder,
     private pessoaService: PessoaService,
-    private activedRouter: ActivatedRoute
-  ) { }
+    private activedRouter: ActivatedRoute,
+    private toastController: ToastController) { }
+
+
   async salvar() {
+    if(this.formGroup.valid) {
     if (this.emailToEdit) {
       this.pessoaService.editar(this.formGroup.value, this.emailToEdit)
     } else {
       this.pessoaService.criar(this.formGroup.value)
     }
+    const toast = await this.toastController.create({
+      header: 'Contato Salvo',
+      message: 'Contato Salvo com sucesso',
+      buttons: ['OK']
+    })
+
+    await toast.present();
   }
+  }
+
 
   ionViewDidEnter(): void {
     this.emailToEdit = null

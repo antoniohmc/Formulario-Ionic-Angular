@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import { IonicModule, ViewDidEnter } from '@ionic/angular';
+import { IonicModule, ViewDidEnter, ToastController, LoadingController } from '@ionic/angular';
 import { ExploreContainerComponent } from "../explore-container/explore-container.component";
 import { Pessoa } from "../model/pessoa";
 import { PessoaService } from "../service/pessoa.service";
@@ -19,9 +19,12 @@ import { ActivatedRoute } from "@angular/router";
 export class Tab2Page implements ViewDidEnter {
   pessoas: Pessoa[] = [];
 
-  constructor(private pessoaService: PessoaService, private router: Router,
-    private activatedRouter: ActivatedRoute) { }
-      
+  constructor(private pessoaService: PessoaService,
+    private router: Router,
+    private activatedRouter: ActivatedRoute,
+    private toastController: ToastController,
+    private loadingController: LoadingController) { }
+
   editar(pessoa: Pessoa) {
     this.router.navigate(['tabs/tab1', pessoa.email])
   }
@@ -40,11 +43,29 @@ export class Tab2Page implements ViewDidEnter {
     })
   }
 
-   async deletar(pessoa: Pessoa) {
+  async deletar(pessoa: Pessoa) {
     const deletado = await this.pessoaService.delete(pessoa.email)
-    if(deletado) {
-    this.listar()
+    if (deletado) {
+      this.listar()
+      const toast = await this.toastController.create({
+        message: 'Pessoa deletada com sucesso',
+        duration: 1500,
+        position: 'top'
+      })
+
+      await toast.present();
     }
-    }
+  }
+
+  async showLoading() {
+    const loading = await this.loadingController.create({
+      message: 'Dismissing after 3 seconds...',
+      duration: 3000
+    });
+
+    loading.present();
+  }
+
+  
 
 }
