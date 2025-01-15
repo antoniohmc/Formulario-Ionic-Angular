@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DatabaseService } from './database.service';
 import { Pessoa } from '../model/pessoa';
+
 const PESSOAS_KEY = "pessoas"
 @Injectable({ providedIn: 'root' })
 export class PessoaService {
@@ -14,6 +15,18 @@ export class PessoaService {
             this.databaseService.set(PESSOAS_KEY, [pessoa])
         }
     }
+
+    async findByNome(nome: string): Promise<Pessoa[]> {
+        const pessoas = await this.listar()
+        const filtered = pessoas?.filter(pessoa =>
+            pessoa.nome.toLocaleLowerCase().startsWith(nome.toLocaleLowerCase()))
+        if (filtered) {
+            return filtered
+        } else {
+            return []
+        }
+    }
+
     listar(): Promise<Pessoa[] | null> {
         return this.databaseService.get<Pessoa[]>(PESSOAS_KEY)
     }
