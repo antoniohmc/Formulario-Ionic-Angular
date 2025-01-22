@@ -6,7 +6,8 @@ import { Pessoa } from "../model/pessoa";
 import { PessoaService } from "../service/pessoa.service";
 import { Router } from "@angular/router";
 import { ActivatedRoute } from "@angular/router";
-import { FormBuilder, FormGroup } from "@angular/forms";
+import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormPessoa } from "../form-pessoa/form-pessoa";
 
 
 @Component({
@@ -14,7 +15,7 @@ import { FormBuilder, FormGroup } from "@angular/forms";
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule
+  imports: [IonicModule, CommonModule, ReactiveFormsModule
   ]
 })
 
@@ -23,6 +24,7 @@ export class Tab2Page implements ViewDidEnter {
   loading = false;
   filterForm: FormGroup<any>;
   subscriptions = new Subscription();
+  modalCtrl: any;
 
   constructor(private pessoaService: PessoaService,
     private router: Router,
@@ -102,5 +104,16 @@ export class Tab2Page implements ViewDidEnter {
     this.subscriptions.unsubscribe()
   }
 
+  async criarNovo() {
+    const modal = await this.modalCtrl.create({
+    component: FormPessoa,
+    componentProps: {modal: true}
+    });
+    await modal.present();
+    const { data, role } = await modal.onWillDismiss();
+    if(role === 'close') {
+    this.listar()
+    }
+    }
 
 }
